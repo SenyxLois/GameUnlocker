@@ -17,7 +17,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 @SuppressLint("DiscouragedPrivateApi")
 @SuppressWarnings("ConstantConditions")
 public class GAMEUNLOCKER implements IXposedHookLoadPackage {
-
+    
+    private static final String TAG = GAMEUNLOCKER.class.getSimpleName();
     // Packages to Spoof as Xiaomi 13 Pro
     private static final String[] packagesToChangeMI13P = {
         "com.levelinfinite.sgameGlobal",
