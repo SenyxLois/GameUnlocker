@@ -61,7 +61,9 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         "com.epicgames.fortnite",
         "com.epicgames.portal",
         "com.tencent.lolm",
-        "jp.konami.pesam"
+        "jp.konami.pesam",
+        "com.hermes.p6gameos",
+        "com.sega.pjsekai"
     };
 
     // Packages to Spoof as POCO F5
