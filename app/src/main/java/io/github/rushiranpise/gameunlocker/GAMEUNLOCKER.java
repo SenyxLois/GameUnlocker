@@ -22,6 +22,7 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
     // Packages to Spoof as Xiaomi 13 Pro
     private static final String[] packagesToChangeMI13P = {
         "com.levelinfinite.sgameGlobal",
+        "com.levelinfinite.sgameGlobal.samsung",
         "com.tencent.tmgp.sgame",
         "com.activision.callofduty.shooter",
         "com.activision.callofudty.warzone",
