@@ -84,7 +84,8 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         "com.tencent.KiHan",
         "com.tencent.tmgp.cf",
         "com.tencent.tmgp.cod",
-        "com.tencent.tmgp.gnyx"
+        "com.tencent.tmgp.gnyx",
+        "com.gryphline.endfield.gp"
     };
 
     // Testing code from @JeelsBoobz
