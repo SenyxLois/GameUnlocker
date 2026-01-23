@@ -64,7 +64,8 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         "com.tencent.lolm",
         "jp.konami.pesam",
         "com.hermes.p6gameos",
-        "com.sega.pjsekai"
+        "com.sega.pjsekai",
+        "com.gryphline.endfield.gp"
     };
 
     // Packages to Spoof as POCO F5
@@ -84,8 +85,7 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         "com.tencent.KiHan",
         "com.tencent.tmgp.cf",
         "com.tencent.tmgp.cod",
-        "com.tencent.tmgp.gnyx",
-        "com.gryphline.endfield.gp"
+        "com.tencent.tmgp.gnyx"
     };
 
     // Testing code from @JeelsBoobz
