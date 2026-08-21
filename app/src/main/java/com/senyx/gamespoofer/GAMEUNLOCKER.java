@@ -1,11 +1,10 @@
-package io.github.rushiranpise.gameunlocker;
+package com.senyx.gamespoofer;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 
 import java.lang.reflect.Field;
-import java.security.KeyStore;
 import java.util.Arrays;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -17,8 +16,14 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 @SuppressLint("DiscouragedPrivateApi")
 @SuppressWarnings("ConstantConditions")
 public class GAMEUNLOCKER implements IXposedHookLoadPackage {
-    
+
     private static final String TAG = GAMEUNLOCKER.class.getSimpleName();
+
+    // Packages to Spoof as RedMagic 11 Pro+
+    private static final String[] packagesToChangeRM11P = {
+        "com.dois.greedgame"
+    };
+
     // Packages to Spoof as Xiaomi 13 Pro
     private static final String[] packagesToChangeMI13P = {
         "com.levelinfinite.sgameGlobal",
@@ -98,6 +103,13 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
 
         String packageName = loadPackageParam.packageName;
 
+        // RedMagic 11 Pro+
+        if (Arrays.asList(packagesToChangeRM11P).contains(packageName)) {
+            propsToChangeRM11P();
+            spoofGpu(loadPackageParam.classLoader, "Adreno (TM) 840", "Qualcomm");
+            XposedBridge.log("Spoofed " + packageName + " as RedMagic 11 Pro+");
+        }
+
         // Black Shark
         if (Arrays.asList(packagesToChangeBS4).contains(packageName)) {
             propsToChangeBS4();
@@ -117,7 +129,6 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         }
 
         // Xiaomi
-
         if (Arrays.asList(packagesToChangeMI13P).contains(packageName)) {
             propsToChangeMI13P();
             XposedBridge.log("Spoofed " + packageName + " as Xiaomi Mi 13 Pro");
@@ -128,6 +139,17 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
             propsToChangeGameMatrix();
             XposedBridge.log("Spoofed " + packageName + " as GameMatrix");
         }
+    }
+
+    // RedMagic 11 Pro+
+    // Props to Spoof as RedMagic 11 Pro+ (NX809J)
+    private static void propsToChangeRM11P() {
+        setPropValue("BRAND", "nubia");
+        setPropValue("MANUFACTURER", "nubia");
+        setPropValue("MODEL", "NX809J");
+        setPropValue("DEVICE", "NX809J");
+        setPropValue("PRODUCT", "NX809J");
+        setPropValue("HARDWARE", "qcom");
     }
 
     // Blackshark
@@ -152,7 +174,6 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
     }
 
     // Xiaomi
-
     // Props to Spoof as Xiaomi Mi 13 Pro
     private static void propsToChangeMI13P() {
         setPropValue("MANUFACTURER", "Xiaomi");
@@ -161,6 +182,40 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
 
     private static void propsToChangeGameMatrix() {
         setPropValue("MODEL", "gamematrix");
+    }
+
+    private static void spoofGpu(ClassLoader classLoader, String renderer, String vendor) {
+        XC_MethodHook gpuHook = new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                if (param.args != null && param.args.length > 0 && param.args[0] instanceof Integer) {
+                    int name = (int) param.args[0];
+                    if (name == 0x1F01) { // GL_RENDERER
+                        param.setResult(renderer);
+                    } else if (name == 0x1F00 && vendor != null) { // GL_VENDOR
+                        param.setResult(vendor);
+                    }
+                }
+            }
+        };
+
+        try {
+            XposedHelpers.findAndHookMethod("android.opengl.GLES20", classLoader, "glGetString", int.class, gpuHook);
+        } catch (Throwable t) {
+            Log.d(TAG, "GLES20 glGetString hook skipped/failed: " + t.getMessage());
+        }
+
+        try {
+            XposedHelpers.findAndHookMethod("android.opengl.GLES30", classLoader, "glGetString", int.class, gpuHook);
+        } catch (Throwable t) {
+            Log.d(TAG, "GLES30 glGetString hook skipped/failed: " + t.getMessage());
+        }
+
+        try {
+            XposedHelpers.findAndHookMethod("com.google.android.gles_jni.GLImpl", classLoader, "glGetString", int.class, gpuHook);
+        } catch (Throwable t) {
+            Log.d(TAG, "GLImpl glGetString hook skipped/failed: " + t.getMessage());
+        }
     }
 
     private static void setPropValue(String key, Object value) {
