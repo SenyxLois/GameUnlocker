@@ -1,26 +1,23 @@
-package io.github.rushiranpise.gameunlocker;
+package com.senyx.gamespoofer;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Field;
-import java.security.KeyStore;
 import java.util.Arrays;
 
-import de.robv.android.xposed.IXposedHookLoadPackage;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import io.github.libxposed.api.XposedModule;
 
 @SuppressLint("DiscouragedPrivateApi")
-@SuppressWarnings("ConstantConditions")
-public class GAMEUNLOCKER implements IXposedHookLoadPackage {
-    
-    private static final String TAG = GAMEUNLOCKER.class.getSimpleName();
-    // Packages to Spoof as Xiaomi 13 Pro
-    private static final String[] packagesToChangeMI13P = {
+public class GameSpoofer extends XposedModule {
+
+    private static final String TAG = "GameSpoofer";
+
+    // Packages to Spoof as REDMAGIC 11 Pro+
+    private static final String[] packagesToChangeRM11P = {
         "com.levelinfinite.sgameGlobal",
         "com.levelinfinite.sgameGlobal.samsung",
         "com.tencent.tmgp.sgame",
@@ -93,40 +90,43 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         "com.garena.game.df"
     };
 
-    @Override
-    public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) {
+    public GameSpoofer() {
+        super();
+    }
 
-        String packageName = loadPackageParam.packageName;
+    @Override
+    public void onPackageLoaded(@NonNull PackageLoadedParam param) {
+
+        String packageName = param.getPackageName();
 
         // Black Shark
         if (Arrays.asList(packagesToChangeBS4).contains(packageName)) {
             propsToChangeBS4();
-            XposedBridge.log("Spoofed " + packageName + " as Black Shark 4");
+            Log.i(TAG, "Spoofed " + packageName + " as Black Shark 4");
         }
 
         // Iqoo
         if (Arrays.asList(packagesToChangeiQ11P).contains(packageName)) {
             propsToChangeiQ11P();
-            XposedBridge.log("Spoofed " + packageName + " as iQOO 11 Pro");
+            Log.i(TAG, "Spoofed " + packageName + " as iQOO 11 Pro");
         }
 
         // Poco
         if (Arrays.asList(packagesToChangeF5).contains(packageName)) {
             propsToChangeF5();
-            XposedBridge.log("Spoofed " + packageName + " as Poco F5");
+            Log.i(TAG, "Spoofed " + packageName + " as Poco F5");
         }
 
-        // Xiaomi
-
-        if (Arrays.asList(packagesToChangeMI13P).contains(packageName)) {
-            propsToChangeMI13P();
-            XposedBridge.log("Spoofed " + packageName + " as Xiaomi Mi 13 Pro");
+        // REDMAGIC
+        if (Arrays.asList(packagesToChangeRM11P).contains(packageName)) {
+            propsToChangeRM11P();
+            Log.i(TAG, "Spoofed " + packageName + " as REDMAGIC 11 Pro+");
         }
 
         // GameMatrix
         if (Arrays.asList(packagesToChangeGameMatrix).contains(packageName)) {
             propsToChangeGameMatrix();
-            XposedBridge.log("Spoofed " + packageName + " as GameMatrix");
+            Log.i(TAG, "Spoofed " + packageName + " as GameMatrix");
         }
     }
 
@@ -151,12 +151,14 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
         setPropValue("MODEL", "23049PCD8G");
     }
 
-    // Xiaomi
-
-    // Props to Spoof as Xiaomi Mi 13 Pro
-    private static void propsToChangeMI13P() {
-        setPropValue("MANUFACTURER", "Xiaomi");
-        setPropValue("MODEL", "2210132C");
+    // REDMAGIC
+    // Props to Spoof as REDMAGIC 11 Pro+
+    private static void propsToChangeRM11P() {
+        setPropValue("BRAND", "nubia");
+        setPropValue("MANUFACTURER", "ZTE Nubia");
+        setPropValue("MODEL", "REDMAGIC 11 Pro+");
+        setPropValue("PRODUCT", "NX809J");
+        setPropValue("DEVICE", "NX809J");
     }
 
     private static void propsToChangeGameMatrix() {
@@ -171,7 +173,7 @@ public class GAMEUNLOCKER implements IXposedHookLoadPackage {
             field.set(null, value);
             field.setAccessible(false);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            XposedBridge.log("Failed to set prop: " + key + "\n" + Log.getStackTraceString(e));
+            Log.e(TAG, "Failed to set prop: " + key + "\n" + Log.getStackTraceString(e));
         }
     }
 }

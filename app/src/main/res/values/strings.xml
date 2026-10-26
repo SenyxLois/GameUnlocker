@@ -1,6 +1,5 @@
 <resources>
-	<string name="app_name">Game Unlocker</string>
-	<string name="xposed_description">Spoof your device as different model for specific games to unlock higher FPS</string>
+	<string name="app_name">Game Spoofer</string>
 	<string-array name="scope">
 		<item>com.YoStar.AetherGazer</item>
 		<item>com.activision.callofduty.shooter</item>
@@ -13,11 +12,14 @@
 		<item>com.epicgames.portal</item>
 		<item>com.gameloft.android.ANMP.GloftA9HM</item>
 		<item>com.garena.game.codm</item>
+		<item>com.garena.game.df</item>
 		<item>com.garena.game.kgvn</item>
 		<item>com.garena.game.lmjx</item>
+		<item>com.gryphline.endfield.gp</item>
 		<item>com.hermes.p6gameos</item>
 		<item>com.levelinfinite.hotta.gp</item>
 		<item>com.levelinfinite.sgameGlobal</item>
+		<item>com.levelinfinite.sgameGlobal.samsung</item>
 		<item>com.madfingergames.legends</item>
 		<item>com.miHoYo.GenshinImpact</item>
 		<item>com.mobile.legends</item>
@@ -25,8 +27,8 @@
 		<item>com.mojang.minecraftpe</item>
 		<item>com.netease.lztgglobal</item>
 		<item>com.ngame.allstar.eu</item>
-		<item>com.pearlabyss.blackdesertm.gl</item>
 		<item>com.pearlabyss.blackdesertm</item>
+		<item>com.pearlabyss.blackdesertm.gl</item>
 		<item>com.proximabeta.mf.uamo</item>
 		<item>com.pubg.imobile</item>
 		<item>com.pubg.krmobile</item>
@@ -37,6 +39,7 @@
 		<item>com.riotgames.league.wildrift</item>
 		<item>com.riotgames.league.wildrifttw</item>
 		<item>com.riotgames.league.wildriftvn</item>
+		<item>com.sega.pjsekai</item>
 		<item>com.supercell.clashofclans</item>
 		<item>com.tencent.KiHan</item>
 		<item>com.tencent.ig</item>
@@ -50,9 +53,7 @@
 		<item>com.vng.codmvn</item>
 		<item>com.vng.mlbbvn</item>
 		<item>com.vng.pubgmobile</item>
-		<item>com.garena.game.df</item>
 		<item>jp.konami.pesam</item>
 		<item>vng.games.revelation.mobile</item>
-		<item>com.gryphline.endfield.gp</item>
 	</string-array>
 </resources>
