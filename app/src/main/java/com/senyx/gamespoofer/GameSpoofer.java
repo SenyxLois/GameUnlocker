@@ -17,7 +17,7 @@ public class GameSpoofer extends XposedModule {
     private static final String TAG = "GameSpoofer";
 
     // Packages to Spoof as REDMAGIC 11 Pro+
-    private static final String[] packagesToChangeRM11P = {
+    private static final String[] packagesToChange18promax = {
         "com.levelinfinite.sgameGlobal",
         "com.levelinfinite.sgameGlobal.samsung",
         "com.tencent.tmgp.sgame",
@@ -118,9 +118,9 @@ public class GameSpoofer extends XposedModule {
         }
 
         // REDMAGIC
-        if (Arrays.asList(packagesToChangeRM11P).contains(packageName)) {
-            propsToChangeRM11P();
-            Log.i(TAG, "Spoofed " + packageName + " as REDMAGIC 11 Pro+");
+        if (Arrays.asList(packagesToChange18promax).contains(packageName)) {
+            propsToChange18promax();
+            Log.i(TAG, "Spoofed " + packageName + " as Xiaomi 18 Pro Max");
         }
 
         // GameMatrix
@@ -153,12 +153,9 @@ public class GameSpoofer extends XposedModule {
 
     // REDMAGIC
     // Props to Spoof as REDMAGIC 11 Pro+
-    private static void propsToChangeRM11P() {
-        setPropValue("BRAND", "nubia");
-        setPropValue("MANUFACTURER", "ZTE Nubia");
-        setPropValue("MODEL", "REDMAGIC 11 Pro+");
-        setPropValue("PRODUCT", "NX809J");
-        setPropValue("DEVICE", "NX809J");
+    private static void propsToChange18promax() {
+        setPropValue("MANUFACTURER", "Xiaomi");
+        setPropValue("MODEL", "2611FPNFAG");
     }
 
     private static void propsToChangeGameMatrix() {
