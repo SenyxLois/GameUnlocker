@@ -11,15 +11,29 @@ android {
         applicationId "com.senyx.gamespoofer"
         minSdk 28
         targetSdk 37
-        versionCode 9
-        versionName "9.0.0"
+        versionCode 10
+        versionName "9.1.0"
+    }
+
+    signingConfigs {
+        release {
+            def keystoreFile = file(System.getenv('KEYSTORE_FILE') ?: 'release.jks')
+            if (keystoreFile.exists()) {
+                storeFile keystoreFile
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS')
+                keyPassword System.getenv('KEY_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release.storeFile != null
+                    ? signingConfigs.release
+                    : signingConfigs.debug
         }
     }
 
