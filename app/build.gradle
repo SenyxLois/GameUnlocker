@@ -11,7 +11,7 @@ android {
         applicationId "com.senyx.gamespoofer"
         minSdk 28
         targetSdk 37
-        versionCode 5
+        versionCode 9
         versionName "9.0.0"
     }
 
@@ -19,6 +19,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -34,4 +35,113 @@ android {
 dependencies {
     compileOnly 'io.github.libxposed:api:102.0.0'
     compileOnly 'androidx.annotation:annotation:1.10.0'
+}
+
+def gameSpooferFile = layout.projectDirectory.file('src/main/java/com/senyx/gamespoofer/GameSpoofer.java').asFile
+def scopeListFile = layout.projectDirectory.file('src/main/resources/META-INF/xposed/scope.list').asFile
+def readmeFile = rootProject.layout.projectDirectory.file('README.md').asFile
+def appVersionCode = android.defaultConfig.versionCode
+def appVersionName = android.defaultConfig.versionName
+
+def extractJavaPackages = { File javaFile ->
+    def packages = []
+    def matcher = javaFile.getText('UTF-8') =~ /Map\.entry\(\s*"([^"]+)"\s*,/
+    matcher.each { packages << it[1] }
+    return packages
+}
+
+def generateScopeList = tasks.register('generateScopeList') {
+    group = 'verification'
+    description = 'Generates META-INF/xposed/scope.list from PACKAGE_PROFILES in GameSpoofer.java.'
+
+    doLast {
+        def javaPackages = extractJavaPackages(gameSpooferFile)
+        if (javaPackages.isEmpty()) {
+            throw new GradleException("No Map.entry(...) packages found in ${gameSpooferFile}")
+        }
+        def duplicates = javaPackages.countBy { it }.findAll { _, count -> count > 1 }.keySet()
+        if (!duplicates.isEmpty()) {
+            throw new GradleException("Duplicate packages in GameSpoofer.java: ${duplicates.toSorted().join(', ')}")
+        }
+        def sortedPackages = javaPackages.toSorted()
+
+        scopeListFile.parentFile.mkdirs()
+        scopeListFile.write(sortedPackages.join('\n') + '\n', 'UTF-8')
+        logger.lifecycle("Generated ${scopeListFile} with ${sortedPackages.size()} packages.")
+    }
+}
+
+def verifyGameList = tasks.register('verifyGameList') {
+    group = 'verification'
+    description = 'Verifies GameSpoofer.java, scope.list, README.md, and versionCode/versionName stay in sync.'
+    mustRunAfter(generateScopeList)
+
+    doLast {
+        def javaPackages = extractJavaPackages(gameSpooferFile)
+        if (javaPackages.isEmpty()) {
+            throw new GradleException("No Map.entry(...) packages found in ${gameSpooferFile}")
+        }
+        def duplicates = javaPackages.countBy { it }.findAll { _, count -> count > 1 }.keySet()
+        if (!duplicates.isEmpty()) {
+            throw new GradleException("Duplicate packages in GameSpoofer.java: ${duplicates.toSorted().join(', ')}")
+        }
+
+        def sortedJavaPackages = javaPackages.toSorted()
+
+        if (!scopeListFile.exists()) {
+            throw new GradleException("Missing ${scopeListFile}. Run './gradlew generateScopeList' to generate it.")
+        }
+        def scopePackages = scopeListFile.readLines('UTF-8')
+                .collect { it.trim() }
+                .findAll { !it.isEmpty() }
+
+        if (scopePackages != sortedJavaPackages) {
+            def missingInScope = (sortedJavaPackages as Set) - (scopePackages as Set)
+            def extraInScope = (scopePackages as Set) - (sortedJavaPackages as Set)
+            throw new GradleException(
+                    "scope.list is out of sync with GameSpoofer.java.\n" +
+                    "  Missing in scope.list: ${missingInScope.toSorted()}\n" +
+                    "  Extra in scope.list:   ${extraInScope.toSorted()}\n" +
+                    "Run './gradlew generateScopeList' to regenerate it."
+            )
+        }
+
+        if (!readmeFile.exists()) {
+            throw new GradleException("Missing ${readmeFile}.")
+        }
+        def readmePackages = new LinkedHashSet<String>()
+        def readmeMatcher = readmeFile.getText('UTF-8') =~ /play\.google\.com\/store\/apps\/details\?id=([A-Za-z0-9_.]+)/
+        readmeMatcher.each { readmePackages << it[1] }
+
+        def javaPackageSet = sortedJavaPackages as Set
+        def missingInReadme = javaPackageSet - readmePackages
+        def extraInReadme = readmePackages - javaPackageSet
+        if (!missingInReadme.isEmpty() || !extraInReadme.isEmpty()) {
+            throw new GradleException(
+                    "README.md supported games list is out of sync with GameSpoofer.java.\n" +
+                    "  Missing in README.md: ${missingInReadme.toSorted()}\n" +
+                    "  Extra in README.md:   ${extraInReadme.toSorted()}"
+            )
+        }
+
+        if (appVersionCode == null || appVersionName == null) {
+            throw new GradleException('defaultConfig.versionCode and defaultConfig.versionName must be set.')
+        }
+        def versionParts = appVersionName.tokenize('.')
+        if (versionParts.isEmpty() || !versionParts[0].isInteger()) {
+            throw new GradleException("Invalid versionName '${appVersionName}': expected numeric major version.")
+        }
+        int majorVersion = versionParts[0].toInteger()
+        if (appVersionCode < majorVersion) {
+            throw new GradleException(
+                    "versionCode (${appVersionCode}) must be >= major version (${majorVersion}) for versionName '${appVersionName}'."
+            )
+        }
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name == 'preBuild') {
+        task.dependsOn(verifyGameList)
+    }
 }
