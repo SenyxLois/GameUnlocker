@@ -82,7 +82,7 @@ jobs:
               exit 1
             fi
 
-            APK_SHA256=$(printf '%s\n' "$VERIFY_OUT" | sed -n 's/.*Signer #1 certificate SHA-256 digest:[[:space:]]*//p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':[:space:]')
+            APK_SHA256=$(printf '%s\n' "$VERIFY_OUT" | sed -n 's/.*certificate SHA-256 digest:[[:space:]]*//p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':[:space:]')
             KEYSTORE_SHA256=$(keytool -J-Duser.language=en -list -v -keystore app/release.jks -alias "$KEY_ALIAS" -storepass "$KEYSTORE_PASSWORD" | sed -n 's/^[[:space:]]*SHA-\{0,1\}256:[[:space:]]*//p' | head -n 1 | tr '[:upper:]' '[:lower:]' | tr -d ':[:space:]')
 
             echo "APK SHA-256:      $APK_SHA256"
